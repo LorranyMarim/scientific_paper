@@ -1,0 +1,563 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{parskip}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Estimativa do Índice Glicêmico de Bebidas Comerciais Usando Processamento de
+Imagens com Deep Learning para Monitoramento de Saúde\
+}
+
+\author{\IEEEauthorblockN{Lorrany B. Amorim Marim\textsuperscript{1}}
+\IEEEauthorblockA{\textit{Departamento de Ciência da Computação} \\
+\textit{Universidade Federal de Ouro Preto}\\
+Ouro Preto, MG, Brasil\\
+lorrany.marim@ufop.aluno.edu.br}
+\and
+\IEEEauthorblockN{André Luiz Carvalho Ottoni\textsuperscript{2}}
+\IEEEauthorblockA{\textit{Departamento de Ciência da Computação} \\
+\textit{Universidade Federal de Ouro Preto}\\
+Ouro Preto, MG, Brasil\\
+andre.ottoni@ufop.edu.br}
+}
+
+\maketitle
+
+\begin{abstract}
+\sloppy
+The monitoring and control of blood glucose levels are crucial for individuals with metabolic diseases, such as diabetes
+(type 1, type 2, and gestational) and insulin resistance. This research addresses a gap in available tools for glycemic
+management, particularly concerning commercial beverages that are widely consumed and can significantly impact glycemic
+control. The study proposes an artificial intelligence (AI)-based solution using deep learning techniques to estimate the
+glycemic index (GI) of ready-to-drink commercial beverages through image processing. By utilizing convolutional neural
+networks (CNNs) and other deep learning architectures, the proposed system aims to classify and estimate the glycemic
+impact of various beverages to aid consumers in managing their blood glucose levels effectively. Recent studies have shown
+promising results in using deep learning models, including bidirectional recurrent neural networks (RNNs) with attention
+mechanisms, for reliable glucose predictions. The developed model is designed to recognize beverage images, estimate GI,
+and categorize them as suitable, recommended with caution, or unsuitable for glycemic control, enhancing accessibility and
+promoting informed dietary choices for individuals with diabetes and insulin resistance. This study discusses the economic
+and health relevance of GI in food and beverages, the challenges of accurately estimating GI in liquid matrices, and the
+potential of AI for real-time applications on mobile devices.
+\fussy
+\end{abstract}
+
+
+\begin{IEEEkeywords}
+\sloppy
+Artificial intelligence, glycemic index, diabetes, insulin resistance, blood glucose monitoring, deep learning, convolutional neural networks, image processing, glycemic control, recurrent neural networks, commercial beverages, mobile applications, metabolic diseases.
+\fussy
+\end{IEEEkeywords}
+
+\section{Introdução}
+\sloppy
+Este estudo visa abordar o desenvolvimento de ferramen-
+tas práticas para indivíduos que precisam monitorar os níveis 
+de glicose (açúcar) no sangue, como pessoas com diabetes 
+e resistência insulínica (pré-diabéticos). O projeto propõe o 
+uso de inteligência artificial para o reconhecimento de bebidas 
+comerciais prontas para consumo, vendidas em supermerca--
+dos, lojas de conveniência e restaurantes. Através do recon
+hecimento por imagem, calcula-se o impacto glicêmico dessas 
+bebidas, classificando-as como adequadas, consumíveis com 
+recomendações, ou inadequadas.
+\par
+O controle e monitoramento dos níveis de glicemia no san--
+gue são fundamentais para indivíduos com doenças metabóli--
+cas, como o diabetes (tipos 1, 2 e gestacional) e a resistência 
+insulínica. Essas condições, caracterizadas pela produção ex-
+cessiva de glicose (hiperglicemia) ou pela insuficiência na
+produção desse açúcar (hipoglicemia), afetam diretamente a
+saúde, podendo resultar em complicações graves, como retino--
+patia, nefropatia, infarto do miocárdio, neuropatias e até a
+morte, se não forem adequadamente controladas\cite{b1}.
+\par
+Estudos clínicos como o Diabetes Control and Complica--
+tions Trial (DCCT) e o United Kingdom Prospective Diabetes
+Study (UKPDS) forneceram evidências robustas sobre a im-
+portância do controle intensivo da glicemia em pacientes
+com diabetes tipo 1 e tipo 2, mostrando uma redução signi
+ficativa nas complicações microvasculares e macrovasculares
+associadas à doença\cite{b1}. Adicionalmente, o Diabetes Preven-
+tion Program (DPP) demonstrou que mudanças no estilo de
+vida, combinadas ao controle glicêmico, podem retardar a
+progressão da resistência insulínica para o diabetes tipo 2
+e reduzir o risco de complicações cardiovasculares\cite{b2}.
+\par
+Diante do aumento global dos casos de diabetes, que afeta 
+8,5\% da população adulta e foi responsável por 1,5 milhão de
+mortes em 2019\cite{b3}, é imperativo buscar novas ferramentas 
+para auxiliar o controle glicêmico. Uma dessas ferramentas é 
+o índice glicêmico (IG), que classifica os alimentos de acordo 
+com a rapidez com que elevam os níveis de glicose no sangue. 
+Alimentos com baixo IG são absorvidos de forma mais lenta, 
+o que ajuda a manter os níveis de glicose estáveis, sendo 
+essa uma estratégia essencial para o controle da glicemia em 
+pacientes com diabetes e resistência insulínica. Alimentos com 
+IG médio produzem uma elevação moderada nos níveis de 
+glicose, enquanto alimentos com IG alto são absorvidos ra--
+pidamente, o que pode levar a picos de glicose no sangue, 
+sendo desaconselhados para pessoas que precisam controlar
+rigorosamente a glicemia\cite{b4},\cite{b5}.
+\par
+A aplicação prática do índice glicêmico (IG), apesar de ser 
+amplamente reconhecido como uma ferramenta essencial 
+para o controle glicêmico, enfrenta desafios significativos\cite{b6}. 
+Esse problema é particularmente notável no caso de bebidas comerciais, 
+tanto alcoólicas quanto não alcoólicas, amplamente 
+consumidas globalmente. Muitas dessas bebidas apresentam
+altos índices glicêmicos devido à sua composição nutricional, 
+o que pode levar a elevações rápidas nos níveis de glicose no
+sangue, complicando o manejo de condições como o diabetes. 
+Além disso, as tabelas nutricionais comumente disponíveis não
+incluem o IG dos produtos, o que obriga os consumidores 
+a estimarem o impacto glicêmico com base em informações 
+limitadas, como o teor de carboidratos e açúcares\cite{b6}.
+\par
+A escolha do estudo sobre predição de valores glicêmicos 
+em bebidas comerciais justifica-se pela relevância econômica e 
+social desse setor. Em 2024, o mercado global de bebidas não 
+alcoólicas gerou uma receita de aproximadamente US\$1,61
+trilhão, enquanto o setor de bebidas alcoólicas alcançou cerca 
+de US\$1,667 bilhões\cite{b7},\cite{b8}. Esses valores refletem a alta 
+demanda por bebidas comerciais e a necessidade de ferra-
+mentas precisas para auxiliar o consumidor na compreensão 
+dos impactos glicêmicos desses produtos, especialmente para 
+aqueles que necessitam monitorar a glicemia regularmente.
+\par
+Samir et al.\cite{b44} propoe dispositivos para monitoramento de IG de alimentos por imagem e atividades fisica, em outro estudo Afnan Ahmed Crystal et al.\cite{b45} discute a integração de sistemas de reconhecimento de alimentos por imagem (FIRS) com redes neurais convulucionais 
+
+Para enfrentar essa lacuna, propomos uma solução baseada 
+em inteligência artificial (IA), utilizando redes neurais artifi-
+ciais e aprendizado profundo \cite{b16}. Estudos recentes indicam 
+que a aplicação de IA na predição de índices glicêmicos tem 
+mostrado resultados promissores, com o uso de modelos de 
+classificação de imagens alimentares para identificar categorias 
+de índice glicêmico (IG) de forma automatizada \cite{b9}. Essa 
+tecnologia, ao reconhecer e classificar imagens capturadas por 
+dispositivos móveis, como smartphones, em tempo real, pode-
+ria consultar uma base de dados previamente treinada para 
+estimar o IG das bebidas analisadas \cite{b17}. O sistema proposto 
+forneceria, assim, uma ferramenta prática para os consumi-
+dores classificarem a adequação de uma bebida para consumo, 
+com base na estimativa do IG, contribuindo para o controle 
+glicêmico e a prevenção de complicações associadas ao dia-
+betes, por meio de uma análise de IG prática e acessível para 
+bebidas comerciais.
+\fussy
+
+\section{Referencial Teórico}
+\subsection{Controle Glicêmico e Impacto na Saúde de Pacientes \\Diabéticos e Resistência Insulínica}
+\sloppy
+A insulina, hormônio essencial produzido pelo pâncreas, 
+é responsável por facilitar a entrada de glicose nas células musculares, 
+hepáticas e adiposas, onde é utilizada como fonte de 
+energia. Esse suprimento de glicose é proveniente da ali-mentação 
+e também sintetizado pelo fígado em situações de 
+demanda, como o jejum. Após as refeições, o aumento dos 
+níveis de glicose no sangue estimula a liberação de insulina, 
+regulando a glicemia e mantendo-a dentro de níveis saudáveis
+\cite{b20}. 
+\par
+A resistência insulínica, caracterizada pela resposta inefi-
+ciente das células à insulina, é um importante fator de risco
+para o desenvolvimento do diabetes tipo 2. Segundo o Nati-
+onal Institute of Diabetes and Digestive and Kidney Diseases
+(NIDDK), cerca de 50\% dos indivíduos com pré-diabetes, 
+que frequentemente apresentam resistência insulínica, podem 
+evoluir para o diabetes tipo 2 se não houver intervenção\cite{b20}. A 
+resistência prolongada pode levar ao esgotamento das células
+beta pancreáticas, reduzindo a produção de insulina e agra--
+vando a hiperglicemia\cite{b21}. Já o diabetes tipo 1 é marcado
+pela destruição autoimune das células beta, resultando em uma 
+produção mínima ou nula de insulina e em hiperglicemia per--
+sistente, caracterizando essa forma da doença\cite{b22}.
+\par
+O controle glicêmico é fundamental tanto para o tratamento 
+do diabetes quanto para a prevenção de complicações como 
+doenças cardiovasculares e neuropatias\cite{b1},\cite{b12}. Em pacientes 
+com resistência à insulina, mudanças no estilo de vida —
+incluindo dieta  com baixo índice glicêmico e aumento da ativi-
+dade física — são recomendadas para minimizar a progressão 
+para o diabetes tipo 2\cite{b11},\cite{b5}. Para diabéticos, o controle 
+glicêmico adequado reduz o risco de complicações micro e
+macrovasculares, beneficiando tanto pacientes com diabetes tipo 1 quanto 
+tipo 2\cite{b1},\cite{b12},\cite{b13}.
+\fussy
+
+\subsection{Pesquisas e Estudos do Impacto na Saúde Através do \\Controle Glicêmico}
+\sloppy
+Em 2024, o Songyuan Community Health Center, na China, 
+acompanhou 359 pacientes com diabetes tipo 2 por seis meses,
+monitorando o controle glicêmico através de registros e ex-
+ames periódicos. O estudo demonstrou que 62,7\% dos pa-
+cientes alcançaram índices glicêmicos mais estáveis, atribuídos 
+a intervenções alimentares e ao ajuste de medicamentos, com 
+efeitos positivos nos resultados clínicos\cite{b10}. 
+\par
+Estudos históricos, como o Diabetes Control and Complications Trial (DCCT) e 
+o Epidemiology of Diabetes Interventions and Complications 
+(EDIC), liderados pelo NIDDK, mostraram que o controle 
+intensivo da glicemia reduz significativamente as complicações 
+microvasculares (retinopatia, nefropatia e neuropatia). A per--
+sistência dos efeitos do controle intensivo, mesmo após a norma-
+lização dos níveis de HbA1c, estabeleceu o conceito de "memó-
+ria metabólica". Além disso, o EDIC observou uma redução 
+de 58\% em eventos cardiovasculares graves entre os pacientes 
+com diabetes tipo 1 submetidos à terapia intensiva\cite{b12}. 
+\par
+De forma semelhante, o UK Prospective Diabetes Study (UKPDS) 
+avaliou o controle glicêmico em pacientes com diabetes tipo 
+2, demonstrando que a redução nos níveis de HbA1c diminuiu 
+em 25\% as complicações microvasculares, embora os efeitos 
+sobre complicações cardiovasculares fossem menos expres-
+sivos. No entanto, o conceito de "memória metabólica" obser-
+vado no DCCT foi reforçado no UKPDS, sugerindo benefícios 
+cardiovasculares com o controle prolongado\cite{b14}. 
+\par
+Outros estudos, como o Action to Control Cardiovascular Risk in Dia-
+betes (ACCORD), apoiado por instituições americanas como 
+o National Heart, Lung, and Blood Institute (NHLBI) e o 
+Centers for Disease Control and Prevention (CDC), exami-
+naram a eficácia do controle intensivo da glicemia em pa-
+cientes com diabetes tipo 2 de alto risco cardiovascular. O 
+estudo concluiu que, para esse perfil, o controle padrão de 
+HbA1c entre 7,0\% e 7,9\% foi mais seguro que um controle 
+intensivo, sugerindo que o monitoramento contínuo pode ser 
+uma estratégia mais apropriada para reduzir a mortalidade\cite{b18}. 
+\par
+Por fim, o Veterans Affairs Diabetes Trial (VADT) in-
+vestigou a relação entre aterosclerose e controle intensivo da 
+glicemia em pacientes com diabetes tipo 2. A pesquisa reve-
+lou que o controle intensivo foi mais eficaz na redução de 
+eventos cardiovasculares entre pacientes com baixo índice de 
+cálcio coronariano, enquanto os pacientes com aterosclerose 
+avançada mostraram menor benefício, destacando a necessi-
+dade de individualização do tratamento\cite{b19}. 
+\par
+Esses estudos, juntamente com o Finnish Diabetes Prevention Study (DPS), 
+que observou uma redução de 58\% no risco de
+diabetes tipo 2 com intervenções no estilo de vida, ressaltam a importância de estratégias preventivas e de controle
+intensivo baseadas em características específicas dos pacientes\cite{b23}.
+\par
+Portanto, estudos sugerem que dietas de baixo índice glicêmico (IG) podem reduzir significativamente os riscos associados
+ao diabetes e a doenças cardiovasculares, conforme discutido anteriormente. As evidências indicam que essas dietas melhoram
+o controle glicêmico em comparação com dietas de alto IG, proporcionando benefícios como a redução dos níveis de HbA1c e
+proteínas glicadas, o que resulta em uma melhora expressiva na glicemia média em pacientes com diabetes tipo 1 e tipo 2.
+Além disso, uma dieta de baixo IG pode ter efeitos clínicos semelhantes aos de alguns agentes farmacológicos destinados ao
+controle da hiperglicemia pós-prandial, posicionando-se como uma estratégia eficaz para a gestão do diabetes \cite{b37}.
+\par
+Em um estudo de Jenkins et al. sobre os efeitos metabólicos de uma dieta de baixo IG, foi observado que o consumo de
+alimentos e bebidas de baixo IG resultou em uma redução significativa na glicose ao longo de 12 horas, em comparação com
+dietas de alto IG. Além disso, houve uma diminuição na proteína sérica glicada (frutosamina), indicando uma redução nos
+níveis médios de glicose no sangue nas últimas 1 a 3 semanas, o que sugere uma melhora no controle glicêmico. Observou-se
+também uma redução de 32\% na secreção de insulina e uma diminuição de 15\% no colesterol total. \cite{b38}.
+\par
+Outro estudo realizado por Brand-Miller e Buyken (2012) apontou para a redução dos riscos cardiovasculares associados a
+dietas de baixo IG, em comparação com dietas de alto IG. Esses achados indicam uma melhora no controle de peso em pessoas
+com sobrepeso, condição frequentemente associada à resistência insulínica, auxiliando na prevenção da recuperação de peso
+após a perda inicial. Dietas de baixo IG também foram associadas à melhora em marcadores inflamatórios e à redução de
+doenças inflamatórias não cardiovasculares e não oncológicas. \cite{b39}.
+\par
+Para aproveitar os benefícios das dietas de baixo IG, indivíduos que
+necessitam de controle glicêmico devido a condições de
+saúde devem considerar tanto alimentos sólidos quanto líquidos. Embora a
+maioria dos estudos e orientações sobre IG
+concentre-se em alimentos sólidos, é essencial conhecer o IG das bebidas
+comercializadas, uma vez que elas representam uma
+parte significativa do consumo total diário de carboidratos.
+\fussy
+
+\subsection{Importância do Índice Glicêmico (IG) para o Controle \\Glicêmico}
+\sloppy
+O índice glicêmico (IG) é uma medida que classifica os 
+alimentos contendo carboidratos de acordo com seu impacto 
+na glicemia pós-prandial, comparando a resposta glicêmica 
+com uma referência, geralmente glicose pura ou pão branco 
+\cite{b4}, \cite{b27}. Os carboidratos são o principal macronutriente 
+influente no IG devido à sua absorção rápida e direta, que 
+eleva os níveis de glicose no sangue. Alimentos de alto IG 
+causam aumentos rápidos na glicemia, enquanto alimentos 
+de baixo IG promovem elevações mais lentas e moderadas 
+\cite{b24},\cite{b5}. 
+\par
+Essa classificação é especialmente relevante para 
+indivíduos com diabetes e resistência insulínica, nos quais a 
+ingestão de carboidratos de alto IG pode exacerbar o descon-
+trole glicêmico, exigindo ajustes na administração de insulina 
+e dificultando o controle da doença \cite{b25}, \cite{b26}. Para esses 
+indivíduos, o consumo de alimentos de baixo IG pode ajudar 
+a reduzir variações glicêmicas, melhorando a sensibilidade 
+à insulina e contribuindo para um manejo dietético mais
+seguro. 
+\par
+Os alimentos são classificados segundo seus valores 
+de índice glicêmico (IG) em três categorias: baixo \((\le55)\), médio \((56\)-
+\(69)\) e alto \((\ge 70)\) \cite{b4}, \cite{b27}. Esses valores são estabelecidos 
+pela medição da área sob a curva glicêmica (AUC) nas duas 
+horas subsequentes à ingestão de uma porção padrão de 50
+gramas de carboidratos disponíveis. Esse método fornece uma 
+base para identificar alimentos que causam menor impacto nos 
+níveis de glicose. A fórmula do IG foi originalmente proposta 
+por Jenkins et al., que calcularam o IG como a razão entre a
+AUC do alimento teste e a AUC de um alimento de referência 
+(geralmente glicose pura), multiplicada por 100, conforme a 
+seguinte fórmula:
+
+\begin{equation*}
+IG = \left(\frac{\text{AUC do alimento teste}}{\text{AUC do alimento referência}}\right)\times100 
+\end{equation*} como mostrado em \cite{b4}.
+\par
+Essa abordagem fornece uma referência para identificar ali-
+mentos com menor impacto glicêmico, essencial para o con
+trole dietético em condições de controle glicêmico como o 
+diabetes \cite{b4}. 
+\par
+Diversos fatores podem influenciar o IG, como 
+a composição do alimento (tipo de carboidrato, presença de 
+fibras e proteínas), o método de preparo e a estrutura física, 
+sendo que alimentos processados tendem a ter IG mais alto 
+\cite{b28}. 
+\par
+Segundo Jenkins e Brand-Miller, o uso do  IG como ferra-
+menta no controle glicêmico é uma estratégia eficaz e prática, 
+especialmente para pacientes com diabetes e  resistência in--
+sulínica, pois permite a escolha de alimentos que minimizam 
+as flutuações glicêmicas, promovendo um controle metabólico 
+mais estável \cite{b4}, \cite{b27}, \cite{b28}.
+\fussy
+
+\subsection{Definição nos Desafios na Predição do IG em Bebidas \\Comerciais}
+\sloppy
+O mercado global de bebidas alcoólicas e não alcoólicas 
+ocupa uma fatia significativa do consumo, evidenciando-se
+pela estimativa de um consumo médio per capita de 28,22 
+litros para bebidas alcoólicas e 105,70 litros para bebidas não
+alcoólicas em 2024, com uma receita combinada de US\$3,77 trilhões 
+\cite{b7}, \cite{b8}. Apesar de seu impacto econômico e presença 
+difundida, há limitações quanto à acessibilidade de dados nu
+tricionais detalhados, especialmente informações sobre o índice 
+glicêmico (IG). O consumidor final frequentemente subestima 
+a quantidade de carboidratos presentes em bebidas, 
+associando-os mais a alimentos sólidos, como pães e massas, do que 
+a bebidas como refrigerantes, sucos, bebidas energéticas e 
+alcoólicas fermentadas (cervejas e saquês) \cite{b6}. Essas limitações 
+nutricionais dificultam o controle glicêmico, particularmente 
+para indivíduos com necessidades específicas, como diabéticos
+e pessoas com resistência insulínica, que precisam monitorar o 
+impacto glicêmico dos produtos consumidos. A complexidade 
+na análise do IG em bebidas é reforçada por estudos que 
+demonstram a variabilidade na composição de carboidratos 
+em líquidos, o que exige metodologias avançadas, como a cro-
+matografia líquida de alta performance (HPLC) e a eletroforese 
+capilar, para identificar e quantificar precisamente os tipos 
+de açúcares presentes \cite{b29}. Embora tais técnicas permitam a 
+detecção precisa de carboidratos, elas não são viáveis para uso 
+em larga escala ou acessíveis ao consumidor final. Além disso, 
+métodos baseados na composição de macronutrientes, con-
+forme descrito em estudos recentes, sugerem que a presença
+de proteínas e gorduras pode modificar o impacto glicêmico 
+dos carboidratos, criando desafios adicionais na predição do 
+IG \cite{b30}. Portanto, é fundamental desenvolver ferramentas que 
+possam fornecer estimativas rápidas e precisas do IG de be--
+bidas comerciais, permitindo que consumidores façam esco--
+lhas informadas para o controle glicêmico. A análise do índice 
+glicêmico (IG) em matrizes líquidas apresenta uma complexi
+dade maior do que em alimentos sólidos devido à variabi--
+lidade na composição e concentração dos carboidratos pre--
+sentes nas bebidas. Estudos indicam que, em bebidas, a taxa 
+de absorção de açúcares pode ser influenciada por diversos 
+fatores, como a presença de outros componentes macronutri-
+entes, a acidez e a viscosidade do líquido. Essa complexi-
+dade demanda o uso de técnicas avançadas de análise, como 
+cromatografia líquida de alta performance (HPLC) e eletro-
+forese capilar, as quais são capazes de identificar e quan--
+tificar açúcares individuais, oferecendo uma análise precisa 
+das concentrações de glicose, frutose e sacarose em difere-
+ntes tipos de bebidas \cite{b40}, \cite{b41}. Tais metodologias, embora 
+precisas, enfrentam limitações práticas: são caras, requerem 
+equipamentos especializados e habilidades laboratoriais, o que 
+inviabiliza sua aplicação em larga escala e acessibilidade direta 
+ao consumidor \cite{b42}. Dessa forma, o desenvolvimento de novas
+ferramentas que permitam uma estimativa confiável e rápida
+do IG em bebidas comerciais é crucial para que indivíduos 
+com necessidades específicas de controle glicêmico possam 
+tomar decisões informadas sobre seu consumo. Além disso, a 
+disponibilização de dados mais acessíveis e precisos sobre o 
+IG de bebidas poderia ter implicações positivas para a saúde 
+pública, ao promover escolhas alimentares mais saudáveis e 
+apoiar iniciativas voltadas à prevenção de doenças crônicas, 
+como diabetes e obesidade \cite{b43}.
+\fussy
+
+\subsection{Avanços no Uso de Deep Learning para Estimativos de IG}
+\sloppy
+Os avanços destacados no uso de deep learning para predição 
+de glicemia neste artigo incluem a utilização de redes neurais
+recorrentes (RNNs) bidirecionais com mecanismo de atenção e 
+aprendizagem evidencial para uma predição de glicose perso--
+nalizada e precisa. A combinação de RNNs com meta-aprendi--
+zagem adaptativa e aprendizado evidencial é particularmente
+significativa, pois permite gerar previsões confiáveis e adaptar 
+rapidamente os modelos a novos dados com precisão melho-
+rada \cite{b34}, \cite{b35}. Além disso, o artigo introduz a "Fast-adaptive 
+and Confident Neural Network" (FCNN), que, ao utilizar re-
+des RNN com meta aprendizagem agnóstica, reduz a neces-
+sidade de grandes volumes de dados iniciais para adaptar o 
+modelo a pacientes individuais \cite{b36}. Esse avanço é crucial 
+para aplicações móveis, como aplicativos de monitoramento 
+glicêmico em tempo real. A integração de camadas de atenção 
+e uma camada de saída evidencial melhora a capacidade do 
+modelo de focar em dados críticos e de atribuir um nível de 
+confiança a cada previsão, ajudando na mitigação de eventos 
+adversos em contexto clínico \cite{b33}, \cite{b34}.
+\fussy
+
+\subsection{Frameworks e Técnicas de Processamento de Imagem \\para Predição Glicêmica}
+\sloppy
+O uso de deep learning tem revolucionado a análise e predi--
+ção do índice glicêmico (IG) em alimentos, com abordagens
+inovadoras baseadas em visão computacional e redes neurais 
+convolucionais (CNNs). Estudos recentes, como o de Khan 
+et al., exploram CNNs para identificar e classificar alimen-
+tos, alcançando até 98,22\% de acurácia em frutas e 84,30\%
+em alimentos variados \cite{b31}. Esses modelos, que dispensam 
+pré-processamento extensivo, são altamente escaláveis, faci--
+litando sua integração em aplicativos móveis para monitora-
+mento de glicemia e consumo de carboidratos. Pesquisas como  
+as de Muresan e Oltean aprimoraram o uso de imagens RGB, 
+grayscale e HSV, alcançando 97,04\% de acurácia na classifica--
+ção de frutas, um avanço importante para aplicações práticas 
+de estimativa de IG \cite{b32}. Modelos como LSTM e redes com 
+atenção aplicadas à predição de glicose demonstram a robustez 
+das arquiteturas de deep learning ao capturar padrões tempo--
+rais e fornecer previsões confiáveis \cite{b33}. Além disso, o uso 
+de redes com meta-aprendizagem e evidências deep learning 
+permite adaptação rápida a novos usuários e maior precisão, 
+ampliando as possibilidades de personalização e aplicação em 
+tempo real para controle glicêmico \cite{b34}.
+\fussy
+
+
+
+\begin{thebibliography}{00}
+\bibitem{b1} S. V. Edelman, "Importance of glucose control", \textit{Medical Clinics of North America}, vol. 82, no. 4, pp. 665--687, 1998.
+\bibitem{b2} I. Conget and M. Giménez, "Glucose control and cardiovascular disease—Is it important? No", \textit{Diabetes Care},
+vol. 32, suppl. 2, p. S335, 2009.
+\bibitem{b3} World Health Organization, "Diabetes", \textit{World Health Organization}, 2023. [Online]. Available: \url{https://www.who.int/news-room/fact-sheets/detail/diabetes}. [Accessed: Oct. 21, 2024].
+\bibitem{b4} D. J. A. Jenkins and T. M. S. Wolever and R. H. Taylor and H. Barker and H. Fielden and J. M. Baldwin and D. V. Goff,
+"Glycemic index of foods: A physiological basis for carbohydrate exchange", \textit{The American Journal of Clinical Nutrition},
+vol. 34, no. 3, pp. 362–366, 1981.
+\bibitem{b5} J. C. Brand-Miller, "Importance of glycemic index in diabetes", \textit{The American Journal of Clinical Nutrition},
+vol. 59, no. 3, pp. 747S–752S, 1994. DOI: 10.1093/ajcn/59.3.747S.
+\bibitem{b6} G. Cowburn and L. Stockley, "Consumer understanding and use of nutrition labelling: A systematic review",
+\textit{Public Health Nutrition}, vol. 8, no. 1, pp. 21–28, 2004. DOI: 10.1079/PHN2005666.
+\bibitem{b7} Statista, "Alcoholic drinks – worldwide", \textit{Statista}, 2024. [Online]. Available: \url{https://www.statista.com/outlook/cmo/alcoholic-drinks/worldwide#revenue}. [Accessed: Oct. 25, 2024].
+\bibitem{b8} Statista, "Non-alcoholic drinks – worldwide", \textit{Statista}, 2024. [Online]. Available: \url{https://www.statista.com/outlook/cmo/non-alcoholic-drinks/worldwide}. [Accessed: Oct. 25, 2024].
+\bibitem{b9} M. I. Khan, B. Acharya, and R. K. Chaurasiya, "Automatic Prediction of Glycemic Index Category from Food
+Images Using Machine Learning Approaches", \textit{Arabian Journal for Science and Engineering}, vol. 47, no. 5, pp. 10823–10846,
+2022. DOI: 10.1007/s13369-022-06754-0.
+\bibitem{b10} L. Fang, Q. Li, and J. Ning, "Assessment of community-managed blood glucose control in patients with diabetes
+mellitus in Shenzhen, China", \textit{Journal of Diabetes}, vol. 16, no. e13573, 2024. DOI: 10.1111/1753-0407.13573
+\bibitem{b11} J. C. Seidell, "Obesity, insulin resistance and diabetes—a worldwide epidemic", \textit{British Journal of Nutrition},
+vol. 83, no. S1, pp. S5–S8, 2000, DOI: 10.1017/S000711450000088X.
+\bibitem{b12}  D. M. Nathan, for the DCCT/EDIC Research Group, "The Diabetes Control and Complications Trial/Epidemiology
+of Diabetes Interventions and Complications Study at 30 years: Overview", \textit{Diabetes Care}, vol. 37, no. 1, pp. 9–16, 2014,
+DOI: 10.2337/dc13-2112.
+\bibitem{b13} DCCT Research Group, "Diabetes Control and Complications Trial (DCCT) update", \textit{Diabetes Care}, vol. 13, no. 4,
+pp. 427–433, 1990, DOI: 10.2337/diacare.13.4.427.
+\bibitem{b14} P. King, I. Peacock, and R. Donnelly, "The UK Prospective Diabetes Study (UKPDS): Clinical and therapeutic
+implications for type 2 diabetes", \textit{British Journal of Clinical Pharmacology}, vol. 48, no. 5, pp. 643–648, 1999, DOI:
+10.1046/j.1365-2125.1999.00092.x.
+\bibitem{b15} The Diabetes Prevention Program Research Group, "The Diabetes Prevention Program (DPP): Description of
+lifestyle intervention", \textit{Diabetes Care}, vol. 25, no. 12, pp. 2165–2171, 2002, DOI: 10.2337/diacare.25.12.2165.
+\bibitem{b16} J. Mantas, A. Hasman, and M. S. Househ, Eds., "Artificial Intelligence in Medicine: Knowledge Representation
+and Transparent Models", \textit{Studies in Health Technology and Informatics}, vol. 287, Springer, 2021, DOI: 10.1007/978-3-030
+89011-7.
+\bibitem{b17} F. Sultana, A. Sufian, and P. Dutta, "Advancements in image classification using convolutional neural
+network", \textit{Proceedings of the 2018 Fourth International Conference on Research in Computational Intelligence and
+Communication Networks (ICRCICN)}, Kolkata, India, 2018, pp. 122–129, DOI: 10.1109/ICRCICN.2018.8718718.
+\bibitem{b18} The ACCORD Study Group, "Action to Control Cardiovascular Risk in Diabetes (ACCORD) trial: Design and
+methods”, \textit{The American Journal of Cardiology}, vol. 99, no. 12A, pp. 21i–33i, 2007, DOI: 10.1016.
+\bibitem{b19} P. D. Reaven et al., "Intensive glucose-lowering therapy reduces cardiovascular disease events in Veterans
+Affairs Diabetes Trial participants with lower calcified coronary atherosclerosis", \textit{Diabetes}, vol. 58, no. 11, pp. 2642
+2648, 2009, DOI: 10.2337/db09-0618.
+\bibitem{b20} NIDDK, “Prediabetes and Insulin Resistance", \textit{National Institute of Diabetes and Digestive and Kidney Diseases}. [Online]. Available:\url{https://www.niddk.nih.gov/health-information/diabetes/overview/what-is-diabetes/prediabetes-insulin-resistance#causes}. [Accessed Oct. 30, 2024].
+\bibitem{b21} IDF, "About Type 2 Diabetes", International Diabetes Federation. [Online]. Available: https://idf.org/about
+diabetes/type-2-diabetes/. [Accessed Oct. 30, 2024].
+\bibitem{b22} IDF, "About Type 1 Diabetes", International Diabetes Federation. [Online]. Available: https://idf.org/about
+diabetes/type-1-diabetes/. [Accessed Oct. 30, 2024].
+\bibitem{b23} J. Lindström et al., "The Finnish Diabetes Prevention Study (DPS): Lifestyle intervention and 3-year results
+on diet and physical activity", Diabetes Care, vol. 26, no. 12, pp. 3230–3236, Dec. 2003, DOI: 10.2337/diacare.26.12.3230.
+\bibitem{b24} E. B. Hamaker and A. A. Tuncil, "Slowly digestible starch: concept, mechanism, and proposed extended glycemic
+index," *Critical Reviews in Food Science and Nutrition*, vol. 54, no. 9, pp. 1235–1247, 2014, DOI:
+10.1080/10408390903372466.
+\bibitem{b25} P. D. McArdle, D. Mellor, S. Rilstone, and J. Taplin, "The role of carbohydrate in diabetes management,"
+Practical Diabetes, vol. 33, no. 7, pp. 237–242, 2016.
+\bibitem{b26} D. H. Bessesen, "The Role of Carbohydrates in Insulin Resistance," Journal of Nutrition, vol. 131, no. 10,
+pp. 2782S–2786S, 2001.
+\bibitem{b27} T. M. S. Wolever and D. J. A. Jenkins, The Glycemic Index: A Physiological Classification of Dietary
+Carbohydrate, Oxford University Press, 2002.
+\bibitem{b28} F. S. Atkinson, K. Foster-Powell, and J. C. Brand-Miller, "International tables of glycemic index and
+glycemic load values: 2008," *Diabetes Care*, vol. 31, no. 12, pp. 2281–2283, 2008.
+\bibitem{b29} S. A. Ross, K. L. Lamkin, and B. W. Vander Jagt, "Carbohydrate analysis of foods and beverages by capillary
+electrophoresis and high-performance liquid chromatography," Journal of Chromatography B, vol. 792, no. 1, pp. 219–227,
+2003. DOI: 10.1016/S1570-0232(03)00377-5.
+\bibitem{b30} A. Rytz, D. Adeline, K.-A. Lê, D. Tan, L. Lamothe, O. Roger, and K. Macé, "Predicting Glycemic Index and
+Glycemic Load from Macronutrients to Accelerate Development of Foods and Beverages with Lower Glucose Responses,"
+Nutrients, vol. 11, no. 5, p. 1172, 2019, DOI: 10.3390/nu11051172.
+\bibitem{b31} M. I. Khan, B. Acharya, and R. K. Chaurasiya, "Automatic Prediction of Glycemic Index Category from Food
+Images Using Machine Learning Approaches," Arabian Journal for Science and Engineering, vol. 47, no. 5, pp. 10823–10846,
+2022. DOI: 10.1007/s13369-022-06754-0.
+\bibitem{b32} F. L. Pereira, M. T. F. Andrade, e P. C. Cortez, "Classificação do Índice Glicêmico a partir de Imagens de
+Alimentos com Redes Neurais Convolucionais," Anais do XXIV Encontro Nacional de Inteligência Artificial e Computacional
+(ENIAC), pp. 1-10, 2020.
+\bibitem{b33} F. Zhu, Y. Li, Y. Shen, Z. Shen, and J. Li, "Deep learning for blood glucose level prediction: How well do
+models generalize across different data sets?" PLoS ONE, vol. 16, no. 2, pp. e0245238, 2021. DOI:
+10.1371/journal.pone.0245238.
+\bibitem{b34} T. Zhu, K. Li, P. Herrero, e P. Georgiou, "Personalized Blood Glucose Prediction for Type 1 Diabetes Using
+Evidential Deep Learning and Meta-Learning," IEEE Transactions on Biomedical Engineering, vol. 70, no. 1, pp. 193-204, Jan.
+2023. DOI: 10.1109/TBME.2022.3187703.
+\bibitem{b35} S. Langarica et al., "Deep Learning-Based Glucose Prediction Models: A Guide for Practitioners and a Curated
+Dataset for Improved Diabetes Management," IEEE Open Journal of Engineering in Medicine and Biology, vol. 5, pp. 467–475,
+2024, doi: 10.1109/OJEMB.2024.3365290.
+\bibitem{b36} T. Zhu, K. Li, P. Herrero, e P. Georgiou, "Personalized Blood Glucose Prediction for Type 1 Diabetes Using
+Evidential Deep Learning and Meta-Learning," IEEE Transactions on Biomedical Engineering, vol. 70, no. 1, pp. 193-204, Jan.
+2023, doi: 10.1109/TBME.2022.3187703.
+\bibitem{b37} J. Brand-Miller, S. Hayne, P. Petocz, e S. Colagiuri, "Low–Glycemic Index Diets in the Management of
+Diabetes: A meta-analysis of randomized controlled trials," Diabetes Care, vol. 26, no. 8, pp. 2261–2267, 2003.
+\bibitem{b38} D. J. A. Jenkins, T. M. S. Wolever, G. R. Collier, A. Ocana, A. V. Rao, G. Buckley, Y. Lam, A. Mayer, e L. U.
+Thompson, "Metabolic effects of a low-glycemic-index diet," American Journal of Clinical Nutrition, vol. 46, no. 6, pp. 968
+975, 1987.
+\bibitem{b39} J. Brand-Miller e A. E. Buyken, "The glycemic index issue," Current Opinion in Lipidology, vol. 23, no. 1,
+pp. 62-67, 2012.
+\bibitem{b40} S. Wolever, "The Glycemic Index in Practice," American Journal of Clinical Nutrition, vol. 89, no. 2, pp. 418
+420, 2019.
+\bibitem{b41} J. D. Brennan e A. D. Marchini, "Capillary Electrophoresis for Sugars in Beverage Analysis," Journal of
+Analytical Methods in Chemistry, vol. 32, no. 4, pp. 56–62, 2020.
+\bibitem{b42} P. P. Rubino, "Challenges and Opportunities in Glycemic Index Testing," Food Chemistry, vol. 285, pp. 232
+240, 2021.
+\bibitem{b43} R. T. Thompson e M. J. Smith, "Public Health Impacts of Glycemic Index Awareness," Journal of Public Health
+Nutrition, vol. 27, no. 6, pp. 1090–1098, 2021.
+\end{thebibliography}
+
+
+\end{document}
+
+%artigo: \bibitem{b1} J. Smith and A. Brown, "Deep learning for glycemic index prediction," \textit{IEEE Transactions on Neural Networks}, vol. 29, no. 3, pp. 123--134, 2023. 
+
+%site: \bibitem{b2} World Health Organization, "Diabetes facts and statistics," \textit{WHO Official Website}. [Online]. Available: https://www.who.int/diabetes. [Acessado: 26/11/2024].
+
+%livro: \bibitem{b3} J. Doe and M. Johnson, \textit{Artificial Intelligence in Health Applications}, 2\textsuperscript{a} ed. New York, NY, USA: Springer, 2021.
+
+%conferencia: \bibitem{b4} R. Lee, K. Kim, and T. Zhang, "Advances in glycemic index prediction using AI," em \textit{Proc. IEEE Int. Conf. Artificial Intelligence}, London, UK, 2023, pp. 45--50.
+
+
